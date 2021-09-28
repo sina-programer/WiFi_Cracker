@@ -1,7 +1,9 @@
 # WiFi_Cracker
 
 ## About the Program:
-This program is a WiFi cracker!
+This program is a WiFi cracker! <br>
+Just run code and select a desired wifi to start cracking 💣 <br><br>
+**Note:** you can use this password list for any work 😉
 
 ### Features:
 - Tests about 80 passwords per minute!
