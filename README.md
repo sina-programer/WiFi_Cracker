@@ -7,6 +7,10 @@ This program is a WiFi cracker!
 - Tests about 80 passwords per minute!
 - You can customize passwords list
 
+### Requirements:
+- pywifi
+- termcolor
+
 ## Reach Me:
 - [sina_programer](https://t.me/sina_programer) in telegram
 - [sina.programer](https://www.instagram.com/sina.programer) in instagram
