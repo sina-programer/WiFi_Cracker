@@ -1,0 +1,2 @@
+pywifi
+termcolor
