@@ -1,2 +1,3 @@
 pywifi
 termcolor
+comtypes
