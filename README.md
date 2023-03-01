@@ -1,5 +1,7 @@
 # WiFi_Cracker
 
+*First of all please check this [url](https://github.com/sina-programer/WiFi_Cracker/issues/3) about moving this repo*
+
 ## About the Program:
 This program is a WiFi cracker! <br>
 Just run code and select a desired wifi to start cracking 💣 <br><br>
