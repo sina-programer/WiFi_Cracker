@@ -86,8 +86,8 @@ class Cracker:
                 self.m=o.readlines()
                 self.m=[line.strip() for line in self.m]
                 print('your selected words are:\n\n'+str(self.m)+'\n\n')
-            l=int(input('Enter maximum number of words in password :'))
-            self.h=int(input("Enter max number of characters in a password :"))
+            l=int(input('\nEnter maximum number of words in password :'))
+            self.h=int(input("\nEnter max number of characters in a password :"))
             for i in range(0,l+1,1):
                 print(str(i)+" words combined\n")
                 combinatio=Cracker.generate_word_combinations(self.m,i)
