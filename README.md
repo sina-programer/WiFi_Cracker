@@ -15,7 +15,8 @@ Just run the code and choose your desired Wi-Fi to start cracking process 💣
 
 ### Features:
 - Tests about 80 passwords per minute!
-- You can customize the password-list by your guesses
+- You can customize the uncombined.txt by your guesses
+  it automatically generates possible combinations and checks for password :)
 
 ### Requirements:
 - pywifi
@@ -27,3 +28,6 @@ Just run the code and choose your desired Wi-Fi to start cracking process 💣
 - reach me(@dhanush_gaadu) on instagram and introduce yourself 
 ## See Also:
 - [Python Mini Projects](https://github.com/sina-programer/Python-Mini-Projects) (a lot of thrilling stuff)
+**CONTRIBUTIONS**
+  -major contributor is sina.f
+  -minor contributor is dhanushgaadu
