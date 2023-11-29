@@ -1,3 +1,4 @@
 pywifi
 termcolor
 comtypes
+itertools
