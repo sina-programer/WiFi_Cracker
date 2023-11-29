@@ -1,14 +1,14 @@
 from pywifi import PyWiFi, Profile, const
 from functools import partial
 from termcolor import cprint
-from itertools import cycle
+from itertools import cycle,combinations
 import operator
 import time
 import sys
 import os
 
 
-PASSWORD_LIST_PATH = r"password-list.txt"
+path = r'uncombined.txt'
 FIGLET = '''\n
    _____ _               ____
   / ____(_)             |  __|
@@ -73,12 +73,29 @@ class Cracker:
         profile.key = password
         return profile
 
+    def generate_word_combinations(m,r):
+        # Generate all combinations of words of length r
+        word_combinations = combinations(m,r)
+        return word_combinations
+
     def load_password_list(self, passwords):
         self.password_list = list(filter(lambda x: len(x)>=8, passwords))
 
     def load_password_list_from_file(self, path):
-        with open(path) as handler:
-            self.load_password_list(handler.read().split('\n'))
+            with open(path,'r') as o:
+                self.m=o.readlines()
+                self.m=[line.strip() for line in self.m]
+                print('your selected words are:\n\n'+str(self.m)+'\n\n')
+            l=int(input('Enter maximum number of words in password :'))
+            self.h=int(input("Enter max number of characters in a password :"))
+            for i in range(0,l+1,1):
+                print(str(i)+" words combined\n")
+                combinatio=Cracker.generate_word_combinations(self.m,i)
+                for combination in combinatio:
+                    com=list(combination)
+                    k="".join(com)
+                    self.password_list.append(k)
+                    self.password_list=[ma for ma in self.password_list if len(ma)>=8 and len(ma)<=self.h]
 
     def set_interface(self, idx):
         self.interface = self.interfaces[idx]
@@ -148,7 +165,7 @@ if __name__ == '__main__':
     os.system('cls')
 
     cracker = Cracker()
-    cracker.load_password_list_from_file(PASSWORD_LIST_PATH)
+    cracker.load_password_list_from_file(path)
 
     time.sleep(.5)
     print('\n Welcome to WiFi-Cracker (written by Sina.F)\n')
