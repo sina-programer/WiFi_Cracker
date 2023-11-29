@@ -16,6 +16,23 @@ FIGLET = '''\n
   \___ \| | '_ \ / _` | |  __|
   ____) | | | | | (_| |_| |  
  |_____/|_|_| |_|\__,_(_)_| 
+
+                  _ 
+                | |
+  __ _ _ __   __| |
+ / _` | '_ \ / _` |
+| (_| | | | | (_| |
+ \__,_|_| |_|\__,_|
+
+
+      _ _                           _                           _       
+    | | |                         | |                         | |      
+  __| | |__   __ _ _ __  _   _ ___| |__   __ _  __ _  __ _  __| |_   _ 
+ / _` | '_ \ / _` | '_ \| | | / __| '_ \ / _` |/ _` |/ _` |/ _` | | | |
+| (_| | | | | (_| | | | | |_| \__ \ | | | (_| | (_| | (_| | (_| | |_| |
+ \__,_|_| |_|\__,_|_| |_|\__,_|___/_| |_|\__, |\__,_|\__,_|\__,_|\__,_|
+                                          __/ |                        
+                                         |___/                         
 \n\n'''
 
 
@@ -168,7 +185,8 @@ if __name__ == '__main__':
     cracker.load_password_list_from_file(path)
 
     time.sleep(.5)
-    print('\n Welcome to WiFi-Cracker (written by Sina.F)\n')
+    print('''\n Welcome to WiFi-Cracker (written by Sina.F)\n
+    and little contribution by @dhanushgaadu''')
     time.sleep(1)
 
     networks = cracker.scan()
