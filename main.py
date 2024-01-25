@@ -1,14 +1,13 @@
 from pywifi import PyWiFi, Profile, const
 from functools import partial
 from termcolor import cprint
-from itertools import cycle
+from itertools import cycle,combinations
 import operator
 import time
 import sys
 import os
-
-
-PASSWORD_LIST_PATH = r"password-list.txt"
+path = r'uncombined.txt'
+path2= r'passwords.txt'
 FIGLET = '''\n
    _____ _               ____
   / ____(_)             |  __|
@@ -16,6 +15,23 @@ FIGLET = '''\n
   \___ \| | '_ \ / _` | |  __|
   ____) | | | | | (_| |_| |  
  |_____/|_|_| |_|\__,_(_)_| 
+
+                  _ 
+                | |
+  __ _ _ __   __| |
+ / _` | '_ \ / _` |
+| (_| | | | | (_| |
+ \__,_|_| |_|\__,_|
+
+
+      _ _                           _                           _       
+    | | |                         | |                         | |      
+  __| | |__   __ _ _ __  _   _ ___| |__   __ _  __ _  __ _  __| |_   _ 
+ / _` | '_ \ / _` | '_ \| | | / __| '_ \ / _` |/ _` |/ _` |/ _` | | | |
+| (_| | | | | (_| | | | | |_| \__ \ | | | (_| | (_| | (_| | (_| | |_| |
+ \__,_|_| |_|\__,_|_| |_|\__,_|___/_| |_|\__, |\__,_|\__,_|\__,_|\__,_|
+                                          __/ |                        
+                                         |___/                         
 \n\n'''
 
 
@@ -62,7 +78,14 @@ class Cracker:
         else:
             self.interface.remove_network_profile(profile)
             return False
-
+    def chooser(self):
+        if int(input("""Would u like to use :-
+                    1:custom typed passwords
+                    2:computer combined passwords
+                    (choose 1 or 2)"""))==1:
+            return True
+        else:
+            return False
     @staticmethod
     def create_temp_profile(ssid, password):
         profile = Profile()
@@ -73,12 +96,29 @@ class Cracker:
         profile.key = password
         return profile
 
+    def generate_word_combinations(m,r):
+        # Generate all combinations of words of length r
+        word_combinations = combinations(m,r)
+        return word_combinations
+
     def load_password_list(self, passwords):
         self.password_list = list(filter(lambda x: len(x)>=8, passwords))
 
     def load_password_list_from_file(self, path):
-        with open(path) as handler:
-            self.load_password_list(handler.read().split('\n'))
+            with open(path,'r') as o:
+                self.m=o.readlines()
+                self.m=[line.strip() for line in self.m]
+                print('your selected words are:\n\n'+str(self.m)+'\n\n')
+            l=int(input('\nEnter maximum number of words in password :'))
+            self.h=int(input("\nEnter max number of characters in a password :"))
+            for i in range(0,l+1,1):
+                print(str(i)+" words combined\n")
+                combinatio=Cracker.generate_word_combinations(self.m,i)
+                for combination in combinatio:
+                    com=list(combination)
+                    k="".join(com)
+                    self.password_list.append(k)
+                    self.password_list=[ma for ma in self.password_list if len(ma)>=8 and len(ma)<=self.h]
 
     def set_interface(self, idx):
         self.interface = self.interfaces[idx]
@@ -148,10 +188,36 @@ if __name__ == '__main__':
     os.system('cls')
 
     cracker = Cracker()
-    cracker.load_password_list_from_file(PASSWORD_LIST_PATH)
+    if cracker.chooser():
+        try:
+            with open(path2,"r") as h:
+                    pass
+        except FileNotFoundError:
+            open(path2,"x")
+            print("please enter passwords in order :)")
+            G=True
+            while G == True:
+                with open(path2,"a")  as j:
+                    F=input("Enter a password :")
+                    j.write(F+"\n")
+                    print("enter nothing and press enter to stop :)")
+                    if F=="":
+                        G=False
+                    else:
+                        G=True
+            with open(path2,"r") as h:
+                lines=["".join(j)for j in [k for k in [l.split("\n") for l in h.readlines()]]]
+                cracker.load_password_list(lines)
+        else:
+            with open(path2,"r") as h:
+                lines=["".join(j)for j in [k for k in [l.split("\n") for l in h.readlines()]]]
+                cracker.load_password_list(lines)
+    else:
+        cracker.load_password_list_from_file(path)
 
     time.sleep(.5)
-    print('\n Welcome to WiFi-Cracker (written by Sina.F)\n')
+    print('''\n Welcome to WiFi-Cracker (written by Sina.F)\n
+    and little contribution by @dhanushgaadu''')
     time.sleep(1)
 
     networks = cracker.scan()
