@@ -6,9 +6,8 @@ import operator
 import time
 import sys
 import os
-
-
 path = r'uncombined.txt'
+path2= r'passwords.txt'
 FIGLET = '''\n
    _____ _               ____
   / ____(_)             |  __|
@@ -79,7 +78,14 @@ class Cracker:
         else:
             self.interface.remove_network_profile(profile)
             return False
-
+    def chooser(self):
+        if int(input("""Would u like to use :-
+                    1:custom typed passwords
+                    2:computer combined passwords
+                    (choose 1 or 2)"""))==1:
+            return True
+        else:
+            return False
     @staticmethod
     def create_temp_profile(ssid, password):
         profile = Profile()
@@ -182,7 +188,32 @@ if __name__ == '__main__':
     os.system('cls')
 
     cracker = Cracker()
-    cracker.load_password_list_from_file(path)
+    if cracker.chooser():
+        try:
+            with open(path2,"r") as h:
+                    pass
+        except FileNotFoundError:
+            open(path2,"x")
+            print("please enter passwords in order :)")
+            G=True
+            while G == True:
+                with open(path2,"a")  as j:
+                    F=input("Enter a password :")
+                    j.write(F+"\n")
+                    print("enter nothing and press enter to stop :)")
+                    if F=="":
+                        G=False
+                    else:
+                        G=True
+            with open(path2,"r") as h:
+                lines=["".join(j)for j in [k for k in [l.split("\n") for l in h.readlines()]]]
+                cracker.load_password_list(lines)
+        else:
+            with open(path2,"r") as h:
+                lines=["".join(j)for j in [k for k in [l.split("\n") for l in h.readlines()]]]
+                cracker.load_password_list(lines)
+    else:
+        cracker.load_password_list_from_file(path)
 
     time.sleep(.5)
     print('''\n Welcome to WiFi-Cracker (written by Sina.F)\n
